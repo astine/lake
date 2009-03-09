@@ -1,0 +1,127 @@
+#! /usr/bin/bash
+#set defaults
+LISP=sbcl
+LISP_HOME=/usr/lib/sbcl/
+ 
+#load user defaults
+if test -e ~/.lisprc
+then
+    sh ~/.lisprc
+elif test -e /etc/lisprc
+then
+    sh /etc/lisprc
+fi
+
+function usage()
+{
+    echo "    Usage: lake [options] [action] [target]
+    Options:
+    
+    --lisp - The lisp program to be used (defaults to sbcl)
+    --lisp-home - The lisp home directory (defaults to /usr/lib/sbcl/)
+    --asdf-registry - The location for the asdf file symlinks (automatically set using lisp if not set)"
+
+    exit;
+}
+
+
+#parse command line
+set -- `getopt -qu -l lisp:,lisp-home:,asdf-registry:,action:,target: h "$@"`;
+while [ $# -gt 0 ]
+do
+    case "$1" in
+	--lisp) LISP=$2; shift;;
+	--lisp-home) LISP_HOME=$2; shift;;
+	--asdf-registry) ASDF_REGISTRY=$2; shift;;
+	--action) ACTION=$2; shift;;
+	--target) TARGET=$2; shift;;
+	--) shift; break;;
+	-h) usage;;
+	-*) echo "Bad option: $1"; usage;;
+	*) break;;
+    esac
+    shift;
+done
+
+if test ! "${ACTION+set}" = set;
+then
+    ACTION=$1;
+    shift;
+fi
+
+if test ! "${TARGET+set}" = set;
+then
+    TARGET=$1;
+    shift;
+fi
+
+#loop through all asd files in the current directory and create 
+#links to them in central registry
+function link_files
+{
+    #find the central registry
+    if test ! "${ASDF_REGISTRY+set}" = set;
+    then
+        case "$LISP" in
+	    sbcl) ASDF_REGISTRY=`sbcl --noinform --eval "(progn (princ (eval (first asdf:*central-registry*))) (quit))"`;;
+	    clisp) ASDF_REGISTRY=`clisp --silent -x "(progn (princ (eval (first asdf:*central-registry*))) (quit))"`;;
+        esac
+    fi
+
+    #make sure the registry exists
+    if ! test -e $ASDF_REGISTRY;
+    then
+        mkdir -p $ASDF_REGISTRY;
+    fi
+
+    #handle target if it exists
+    if test "${TARGET+set}" = set;
+    then
+        if  [[ "$TARGET" =~ http://.*/(.*$) ]]
+	then
+	    wget $TARGET;
+	    TARGET=${BASH_REMATCH[1]};
+	fi
+        if  [[ "$TARGET" =~ (.*)\.tar\.gz ]]
+	then
+	    tar -xvzf $TARGET;
+	    TARGET=${BASH_REMATCH[1]}:
+	fi
+	cd $TARGET;
+    fi
+
+    if [ *.asd == "*.asd" ];
+    then 
+	echo "No systems found in: `pwd`";
+    else
+	for file in *.asd
+	do
+	    if test -e $ASDF_REGISTRY/$file;
+	    then
+		echo "System: $file, already registered.";
+		input="x";
+		while ! [ $input = "y" ] && ! [ $input = "n" ] ;
+		do
+		    read -s -n 1 -p "Overwrite (y/n)" input;
+		    echo "";
+		    if [ $input = "y" ];
+		    then
+			echo "Overwriting link to $file in $ASDF_REGISTRY";
+			rm $ASDF_REGISTRY/$file;
+			ln -s `pwd`/$file $ASDF_REGISTRY;
+		    fi
+		done
+		echo "Ok";
+	    else
+		echo "Linking $file in $ASDF_REGISTRY";
+		ln -s `pwd`/$file $ASDF_REGISTRY;
+	    fi
+	done  
+	echo "Soft install complete.";
+    fi
+}
+
+case "$ACTION" in
+    soft-install) link_files;;
+    *) usage;;
+esac
