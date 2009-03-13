@@ -26,20 +26,23 @@ EOF
 
     
 #parse command line
-set -- `getopt h "$@"`;
+set -- `getopt -l lisp:,lisp-home:,asdf-registry:,action: ha: "$@"`;
 while [ $# -gt 0 ]
 do
     case "$1" in
 	--lisp) LISP=$2; shift;;
+	--action) ACTION=$2; shift;;
 	--lisp-home) LISP_HOME=$2; shift;;
 	--asdf-registry) ASDF_REGISTRY=$2; shift;;
 	--) shift; break;;
+	-a) ACTION=$2; shift;;
 	-h) usage;;
 	-*) echo "Bad option: $1"; usage;;
 	*) break;;
     esac
     shift;
 done
+
 
 #find the central registry
 if test ! "${ASDF_REGISTRY+set}" = set;
