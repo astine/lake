@@ -1,0 +1,16 @@
+To install type 'make' to uninstall type 'make uninstall'
+
+To use:
+lake <options> <action> <target>
+
+options:
+   -h - print help and leave
+   --lisp - name of lisp implementation to install for
+   --lisp-home - home directory of lisp implementation
+   --asf-registry - where asdf looks for asd files and symlinks
+
+actions:
+   soft-install - install by linking asd files in the asdf registry
+
+targets:
+   must be either a directory, tarball, or downloadable link
