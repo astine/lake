@@ -1,4 +1,4 @@
-#! /usr/bin/bash
+#! /bin/bash
 #set defaults
 LISP=sbcl
 LISP_HOME=/usr/lib/sbcl/
@@ -84,8 +84,8 @@ function link_files
 	fi
         if  [[ "$TARGET" =~ (.*)\.tar\.gz ]]
 	then
-	    tar -xvzf $TARGET;
-	    TARGET=${BASH_REMATCH[1]}:
+	   temp=`tar -xvzf $TARGET`;
+	   TARGET=`echo $temp | awk 'NR>1{exit} {print $1}'`;
 	fi
 	cd $TARGET;
     fi
@@ -107,14 +107,14 @@ function link_files
 		    if [ $input = "y" ];
 		    then
 			echo "Overwriting link to $file in $ASDF_REGISTRY";
-			rm $ASDF_REGISTRY/$file;
-			ln -s `pwd`/$file $ASDF_REGISTRY;
+			sudo rm $ASDF_REGISTRY/$file;
+			sudo ln -s `pwd`/$file $ASDF_REGISTRY;
 		    fi
 		done
 		echo "Ok";
 	    else
 		echo "Linking $file in $ASDF_REGISTRY";
-		ln -s `pwd`/$file $ASDF_REGISTRY;
+		sudo ln -s `pwd`/$file $ASDF_REGISTRY;
 	    fi
 	done  
 	echo "Soft install complete.";
