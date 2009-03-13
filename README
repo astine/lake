@@ -1,6 +1,18 @@
-To install type 'make' to uninstall type 'make uninstall'
+lake (c) 2009 -- Andrew Stine
 
-To use:
+Lake is a simple bash script to help manage Common Lisp libraries.
+It's primary purpose is that of the 'soft install,' that is, of
+simply putting links to library .asd files and letting ASDF do
+the rest. As opposed to other tools, such as ASDF-Install,
+The Common Lisp Controller, and clbuild, Lake does not attempt
+to perform dependency checking or replace your curent build setup;
+instead, it attempts to fit in to your current setup and simplify
+the process of installing libraries manually, and maintaining
+libraries created or hacked by the user.
+
+To install type 'make.' To uninstall type 'make uninstall.'
+
+USAGE:
 lake <options> <action> <target>
 
 options:
@@ -14,3 +26,8 @@ actions:
 
 targets:
    must be either a directory, tarball, or downloadable link
+
+EXAMPLES:
+   lake soft-install lisp-library/
+   lake soft-install lisp-library.tar.gz
+   lake soft-install http://common-lisp.net/project/lisp-library/lisp-library.tar.gz
