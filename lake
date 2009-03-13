@@ -40,7 +40,7 @@ do
 	-t) TARGET=$2; shift;;
 	-l) LISP=$2; shift;;
 	-H) LISP_HOME=$2; shift;;
-	-A) ASDF_REGISTRY=$2; shift;;
+	-R) ASDF_REGISTRY=$2; shift;;
 	-h) usage;;
 	-*) echo "Bad option: $1"; usage;;
 	*) break;;
