@@ -91,6 +91,14 @@ function link_files
 	then
 	   temp=`tar -xvzf $TARGET`;
 	   TARGET=`echo $temp | awk 'NR>1{exit} {print $1}'`;
+        elif  [[ "$TARGET" =~ (.*)\.tgz ]]
+	then
+	   temp=`tar -xvzf $TARGET`;
+	   TARGET=`echo $temp | awk 'NR>1{exit} {print $1}'`;
+        elif  [[ "$TARGET" =~ (.*)\.tar\.bz2 ]]
+	then
+	   temp=`tar --use-compress-prog=bzip2 -xf $TARGET`;
+	   TARGET=`echo $temp | awk 'NR>1{exit} {print $1}'`;
 	fi
 	cd $TARGET;
     fi
@@ -127,6 +135,6 @@ function link_files
 }
 
 case "$ACTION" in
-    soft-install) link_files;;
+    install) link_files;;
     *) usage;;
 esac
